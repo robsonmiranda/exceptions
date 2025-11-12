@@ -38,8 +38,21 @@ public class AdocaoService {
     public void solicitar(SolicitacaoDeAdocaoDTO dto) {
         Pet pet = petRepository.getReferenceById(dto.idPet());
         Tutor tutor = tutorRepository.getReferenceById(dto.idTutor());
-
-        adocaoRepository.save(new Adocao(tutor,pet, dto.motivo()));
+        // Pet já adotado
+        if (pet.getAdotado()) {
+            throw new IllegalStateException("Pet já adotado.");
+        }
+        // Pet com solicitação de adoção em andamento
+        boolean petComAdocaoEmAndamento = adocaoRepository.existsByPetIdAndStatus(dto.idPet(), StatusAdocao.AGUARDANDO_AVALIACAO);
+        if (petComAdocaoEmAndamento) {
+            throw new UnsupportedOperationException("Pet com adoção em andamento.");
+        }
+        // Tutor com duas adoções aprovadas
+        int tutorAdocoes = adocaoRepository.countByTutorIdAndStatus(dto.idTutor(), StatusAdocao.APROVADO);
+        if (tutorAdocoes == 2) {
+            throw new IllegalStateException("Tutor com máximo de adoções.");
+        }
+        adocaoRepository.save(new Adocao(tutor, pet, dto.motivo()));
     }
 
     public void aprovar(AprovarAdocaoDTO dto) {
