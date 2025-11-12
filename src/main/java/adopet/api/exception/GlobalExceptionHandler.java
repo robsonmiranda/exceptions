@@ -16,4 +16,11 @@ public class GlobalExceptionHandler {
         ResponseError response = new ResponseError(e.getMessage(), HttpStatus.BAD_REQUEST, LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+
+    // Este método irá tratar qualquer exceção que não tenha um tratamento específico (método curinga)
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ResponseError> trataException(Exception e) {
+        ResponseError response = new ResponseError(e.getMessage(), HttpStatus.BAD_REQUEST, LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }
